@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fake Job Detector</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <!-- ─── Header ──────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 2L4 7v9c0 7.18 5.14 13.89 12 15.5C22.86 29.89 28 23.18 28 16V7L16 2z"
+            fill="url(#shieldGrad)"/>
+          <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle"
+            font-size="13" font-weight="bold" fill="white" font-family="sans-serif">AI</text>
+          <defs>
+            <linearGradient id="shieldGrad" x1="4" y1="2" x2="28" y2="31.5" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#6366f1"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="header-text">
+        <span class="header-title">Fake Job Detector</span>
+        <span class="header-subtitle">AI Risk Analysis</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-label" id="statusLabel">Checking…</span>
+      <span class="last-scan" id="lastScan"></span>
+    </div>
+  </header>
+
+  <!-- ─── Scan Button ──────────────────────────────────────────── -->
+  <div class="scan-section">
+    <button class="scan-btn" id="scanBtn">
+      <svg class="scan-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span id="scanBtnText">Scan This Job</span>
+    </button>
+    <div class="scan-status" id="scanStatus"></div>
+  </div>
+
+  <!-- ─── Results Dashboard ──────────────────────────────────── -->
+  <div class="results" id="results" style="display:none;">
+
+    <!-- Row 1: Fraud Probability + Trust Score -->
+    <div class="row-two">
+      <!-- Fraud Probability -->
+      <div class="card card-fraud">
+        <div class="card-label">Fraud Probability</div>
+        <div class="fraud-value" id="fraudValue">--</div>
+        <div class="risk-badge" id="riskBadge">--</div>
+      </div>
+
+      <!-- Trust Score Gauge -->
+      <div class="card card-gauge">
+        <div class="card-label">Trust Score</div>
+        <div class="gauge-wrap">
+          <svg class="gauge-svg" viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+            <!-- background arc -->
+            <path d="M10 65 A50 50 0 0 1 110 65" fill="none" stroke="#2a2a3e" stroke-width="10" stroke-linecap="round"/>
+            <!-- colored arc -->
+            <path id="gaugeArc" d="M10 65 A50 50 0 0 1 110 65" fill="none" stroke="url(#gaugeGrad)"
+              stroke-width="10" stroke-linecap="round" stroke-dasharray="0 157"/>
+            <!-- needle -->
+            <line id="gaugeNeedle" x1="60" y1="65" x2="60" y2="20"
+              stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="60" cy="65" r="4" fill="white"/>
+            <!-- gradient -->
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="50%" stop-color="#eab308"/>
+                <stop offset="100%" stop-color="#22c55e"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="gauge-score" id="gaugeScore">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Cards Grid -->
+    <div class="stats-grid">
+      <div class="card stat-card">
+        <div class="stat-label">Confidence</div>
+        <div class="stat-value cyan" id="statConfidence">--</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Suspicious Words</div>
+        <div class="stat-value red" id="statSuspicious">--</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Missing Details</div>
+        <div class="stat-value white" id="statMissing">--</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Salary Pattern</div>
+        <div class="stat-value" id="statSalary">--</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Domain Trust</div>
+        <div class="stat-value cyan" id="statDomain">--</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label">Company Verified</div>
+        <div class="stat-value" id="statCompany">--</div>
+      </div>
+      <div class="card stat-card stat-card-wide">
+        <div class="stat-label">Similar Fraud Cases</div>
+        <div class="stat-value red" id="statSimilar">--</div>
+      </div>
+    </div>
+
+    <!-- Risk Timeline -->
+    <div class="card card-timeline">
+      <div class="card-label">Risk Timeline</div>
+      <div class="timeline-bars" id="timelineBars">
+        <!-- bars injected by JS -->
+      </div>
+      <div class="timeline-labels">
+        <span>#1</span><span>#2</span><span>#3</span><span>#4</span>
+        <span>#5</span><span>#6</span><span>#7</span>
+      </div>
+    </div>
+
+    <!-- Why this result? -->
+    <div class="card card-explanation">
+      <button class="explanation-toggle" id="explanationToggle">
+        <span>Why this result?</span>
+        <svg class="chevron" id="chevron" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="explanation-body" id="explanationBody" style="display:none;">
+        <p id="explanationText"></p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+      <button class="action-btn" id="actionReport" title="Report">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        <span>Report</span>
+      </button>
+      <button class="action-btn" id="actionSave" title="Save">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span>Save</span>
+      </button>
+      <button class="action-btn" id="actionHistory" title="History">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 1 .5 4"/><polyline points="3 16 3 11 8 11"/></svg>
+        <span>History</span>
+      </button>
+      <button class="action-btn" id="actionShare" title="Share">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Share</span>
+      </button>
+      <button class="action-btn" id="actionPdf" title="PDF">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── History Panel ──────────────────────────────────────── -->
+  <div class="history-panel" id="historyPanel" style="display:none;">
+    <div class="history-header">
+      <span>Scan History</span>
+      <button class="history-close" id="historyClose">✕</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
