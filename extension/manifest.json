@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Fake Job Detector – AI Risk Analysis",
+  "version": "1.0.0",
+  "description": "Detect fraudulent job postings using AI. Scan any job listing on LinkedIn, Indeed, Naukri, or Glassdoor.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Fake Job Detector"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.linkedin.com/*",
+        "*://*.indeed.com/*",
+        "*://*.naukri.com/*",
+        "*://*.glassdoor.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "*://*.linkedin.com/*",
+    "*://*.indeed.com/*",
+    "*://*.naukri.com/*",
+    "*://*.glassdoor.com/*"
+  ]
+}
